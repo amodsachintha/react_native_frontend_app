@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
-import { Layout, List, ListItem} from "react-native-ui-kitten";
+import {Button, Layout, List, ListItem} from "react-native-ui-kitten";
 import axios from 'axios';
+import config from './config';
 
 export default class HistoryList extends Component {
 
@@ -10,10 +11,15 @@ export default class HistoryList extends Component {
             history: null
         };
         this.renderListItem = this.renderListItem.bind(this);
+        this.refreshList = this.refreshList.bind(this);
     }
 
     componentDidMount() {
-        axios.get('http://192.168.1.50:2222/history').then(res => {
+        this.refreshList();
+    }
+
+    refreshList(){
+        axios.get(`http://${config.remote_server}:${config.remote_port}/history`).then(res => {
             this.setState({history: res.data.data});
         }).catch(e => {
             alert(e.toString());
@@ -35,7 +41,8 @@ export default class HistoryList extends Component {
     render() {
         return (
             <Layout>
-                <List data={this.state.history} renderItem={this.renderListItem}/>
+                <Button onPress={this.refreshList} appearance='outline' status='success'>refresh</Button>
+                <List data={this.state.history} renderItem={this.renderListItem} style={{marginTop: 2}}/>
             </Layout>
         )
     }

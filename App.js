@@ -4,6 +4,8 @@ import {ApplicationProvider, Layout, Text, TabView, Tab, Button, Avatar, Select,
 import {mapping, light as theme} from '@eva-design/eva';
 import axios from 'axios';
 import HistoryList from "./HistoryList";
+import MapView from "react-native-maps";
+import config from './config';
 
 class App extends Component {
 
@@ -82,7 +84,7 @@ class App extends Component {
 
     doPost() {
         if (this.state.selectedProvince && this.state.selectedMonth && this.state.selectedDay) {
-            axios.post('http://192.168.1.50:2222/predict', {
+            axios.post(`http://${config.remote_server}:${config.remote_port}/predict`, {
                 day: this.state.selectedDay,
                 month: this.state.selectedMonth,
                 province: this.state.selectedProvince
@@ -189,6 +191,17 @@ class App extends Component {
                     <Tab title='Info'>
                         <Layout style={{padding: 30}}>
                             {this.renderHistoryItem()}
+                            <MapView region={{
+                                latitude: 37.78825,
+                                longitude: -122.4324,
+                                latitudeDelta: 0.0922,
+                                longitudeDelta: 0.0421,
+                            }} initialRegion={{
+                                latitude: 37.78825,
+                                longitude: -122.4324,
+                                latitudeDelta: 0.0922,
+                                longitudeDelta: 0.0421,
+                            }}/>
                         </Layout>
                     </Tab>
                 </TabView>
