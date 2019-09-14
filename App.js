@@ -1,10 +1,9 @@
 import React, {Component} from 'react';
 import {StyleSheet, ToastAndroid} from 'react-native';
-import {ApplicationProvider, Layout, Text, TabView, Tab, Button, Avatar, Select, ListItem} from 'react-native-ui-kitten';
+import {ApplicationProvider, Layout, Text, TabView, Tab, Button, Avatar, Select, ListItem, Spinner} from 'react-native-ui-kitten';
 import {mapping, light as theme} from '@eva-design/eva';
 import axios from 'axios';
 import HistoryList from "./HistoryList";
-import MapView from "react-native-maps";
 import config from './config';
 
 class App extends Component {
@@ -52,7 +51,8 @@ class App extends Component {
             selectedProvince: null,
             selectedDay: null,
             selectStatus: 'primary',
-            selectedHistoryItem: null
+            selectedHistoryItem: null,
+            isLoading: false
         };
         this.onSelectOption = this.onSelectOption.bind(this);
         this.onSelectMonth = this.onSelectMonth.bind(this);
@@ -84,6 +84,7 @@ class App extends Component {
 
     doPost() {
         if (this.state.selectedProvince && this.state.selectedMonth && this.state.selectedDay) {
+            this.setState({isLoading: true});
             axios.post(`http://${config.remote_server}:${config.remote_port}/predict`, {
                 day: this.state.selectedDay,
                 month: this.state.selectedMonth,
@@ -91,9 +92,11 @@ class App extends Component {
             }).then(res => {
                 ToastAndroid.show('Success!', ToastAndroid.SHORT);
                 alert(`Predicted ${res.data.data.class} with ${res.data.data.accuracy}% accuracy`);
+                this.setState({isLoading: false});
             }).catch(e => {
                 ToastAndroid.show('error', ToastAndroid.SHORT);
                 alert(e.toString());
+                this.setState({isLoading: false});
             });
 
         } else {
@@ -178,9 +181,13 @@ class App extends Component {
                                 selectedOption={this.state.selectedDay} label='Day'
                                 onSelect={this.onSelectDay} status={this.state.selectStatus}/>
 
-                            <Button onPress={this.doPost} appearance='outline'>
+                            <Button onPress={this.doPost} status='danger' appearance='outline' disabled={this.state.isLoading}>
                                 Get Prediction
                             </Button>
+
+                            <Layout style={{alignItems: 'center', marginTop: 20}}>
+                                {this.state.isLoading ? <Spinner status='warning' size='giant'/> : null}
+                            </Layout>
                         </Layout>
                     </Tab>
                     <Tab title='History'>
@@ -191,17 +198,6 @@ class App extends Component {
                     <Tab title='Info'>
                         <Layout style={{padding: 30}}>
                             {this.renderHistoryItem()}
-                            <MapView region={{
-                                latitude: 37.78825,
-                                longitude: -122.4324,
-                                latitudeDelta: 0.0922,
-                                longitudeDelta: 0.0421,
-                            }} initialRegion={{
-                                latitude: 37.78825,
-                                longitude: -122.4324,
-                                latitudeDelta: 0.0922,
-                                longitudeDelta: 0.0421,
-                            }}/>
                         </Layout>
                     </Tab>
                 </TabView>
