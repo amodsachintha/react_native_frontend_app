@@ -44,12 +44,21 @@ class App extends Component {
             {text: 'Saturday', value: 6},
             {text: 'Sunday', value: 7}
         ];
+        this.years = [
+            {text: '2019', value: 2019},
+            {text: '2020', value: 2020},
+            {text: '2021', value: 2021},
+            {text: '2022', value: 2022},
+            {text: '2023', value: 2023},
+            {text: '2024', value: 2024}
+        ];
 
         this.state = {
             tabIndex: 0,
             selectedMonth: null,
             selectedProvince: null,
             selectedDay: null,
+            selectedYear: null,
             selectStatus: 'primary',
             selectedHistoryItem: null,
             isLoading: false
@@ -61,6 +70,7 @@ class App extends Component {
         this.doPost = this.doPost.bind(this);
         this.setSelectedHistoryItem = this.setSelectedHistoryItem.bind(this);
         this.renderHistoryItem = this.renderHistoryItem.bind(this);
+        this.onSelectYear = this.onSelectYear.bind(this);
     }
 
     onSelectOption(tabIndex) {
@@ -82,12 +92,18 @@ class App extends Component {
         this.setState({selectStatus: 'primary'});
     }
 
+    onSelectYear(selectedYear){
+        this.setState({selectedYear});
+        this.setState({selectStatus: 'primary'});
+    }
+
     doPost() {
         if (this.state.selectedProvince && this.state.selectedMonth && this.state.selectedDay) {
             this.setState({isLoading: true});
             axios.post(`http://${config.remote_server}:${config.remote_port}/predict`, {
                 day: this.state.selectedDay,
                 month: this.state.selectedMonth,
+                year: this.state.selectedYear,
                 province: this.state.selectedProvince
             }).then(res => {
                 ToastAndroid.show('Success!', ToastAndroid.SHORT);
@@ -171,6 +187,10 @@ class App extends Component {
                             <Select data={this.provinces} placeholder='Select Province' style={{paddingBottom: 15}}
                                     selectedOption={this.state.selectedProvince} label='Province'
                                     onSelect={this.onSelectProvince} status={this.state.selectStatus}/>
+
+                            <Select data={this.years} placeholder='Select Year' style={{paddingBottom: 15}}
+                                    selectedOption={this.state.selectedYear} label='Year'
+                                    onSelect={this.onSelectYear} status={this.state.selectStatus}/>
 
                             <Select data={this.months} placeholder='Select Month' style={{paddingBottom: 15}}
                                     selectedOption={this.state.selectedMonth} label='Month'
